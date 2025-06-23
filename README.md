@@ -92,6 +92,7 @@ TopTop mengusung desain modern, bersih, dan ramah pengguna.
 
 - 📂 GitHub Repository: [TopTop GitHub](https://github.com/Tesyaf/TopTop.git)
 - 🎨 Figma Desain: [TopTop Figma](https://www.figma.com/design/jZM2vyGnga8KvIGSUHeu6X/TopTop?node-id=0-1&t=ho4GLYKEOIqNJixc-1)
+- 🖥️ Laporan: [TopTop Laporan](https://1drv.ms/w/c/b3ddf11fb1984949/ERlNhEnF78BNmOQpoGNZzl8BBjoIj2lxOXfQop9YKot4Bw?e=y6wVYt)
 
 ---
 
