@@ -26,6 +26,8 @@ Fitur ini memungkinkan pengguna menyaring laptop berdasarkan:
 - Tahun rilis
 - Berat (untuk mobilitas)
 
+---
+
 ### 📊 Perbandingan Laptop
 Bandingkan hingga 3 laptop sekaligus dalam satu tampilan untuk melihat spesifikasi teknis, harga, dan ulasan pengguna secara berdampingan.
 
