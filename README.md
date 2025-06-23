@@ -13,6 +13,8 @@ TopTop menyediakan berbagai fitur unggulan yang dapat membantu pengguna:
 ### ✅ Rekomendasi Laptop Personal
 Pengguna cukup mengisi kuisioner sederhana terkait aktivitas utama (belajar, bekerja, gaming, dll.), spesifikasi yang diinginkan, dan anggaran. Sistem akan secara otomatis menampilkan laptop yang paling sesuai.
 
+---
+
 ### 🔎 Filter Pencarian Lengkap
 Fitur ini memungkinkan pengguna menyaring laptop berdasarkan:
 - Harga (min - max)
