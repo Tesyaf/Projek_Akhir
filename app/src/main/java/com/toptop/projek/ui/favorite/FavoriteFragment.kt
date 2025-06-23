@@ -53,11 +53,14 @@ class FavoriteFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        wishlistAdapter = SearchAdapter { laptop ->
-            val userId = sharedViewModel.userId.value
-            val bundle = bundleOf("LAPTOP_ID" to laptop.id, "USER_ID" to userId)
-            findNavController().navigate(R.id.action_navigation_favorite_to_detailFragment, bundle)
-        }
+        // Sekarang kita hanya perlu memberikan parameter 'onClick'
+        wishlistAdapter = SearchAdapter(
+            onClick = { laptop ->
+                val userId = sharedViewModel.userId.value
+                val bundle = bundleOf("LAPTOP_ID" to laptop.id, "USER_ID" to userId)
+                findNavController().navigate(R.id.action_navigation_favorite_to_detailFragment, bundle)
+            }
+        ) // Parameter kedua tidak perlu diisi
         binding.rvWishlist.adapter = wishlistAdapter
     }
 

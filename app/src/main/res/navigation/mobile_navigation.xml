@@ -76,11 +76,17 @@
     <fragment
         android:id="@+id/navigation_pencarian"
         android:name="com.toptop.projek.ui.pencarian.PencarianFragment"
-        android:label="Pencarian"
+        android:label="Search"
         tools:layout="@layout/fragment_pencarian">
+
         <action
             android:id="@+id/action_navigation_pencarian_to_detailFragment"
             app:destination="@id/detailFragment" />
+
+        <action
+            android:id="@+id/action_navigation_pencarian_to_comparisonFragment"
+            app:destination="@id/comparisonFragment" />
+
     </fragment>
 
     <fragment

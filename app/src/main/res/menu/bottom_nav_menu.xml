@@ -8,12 +8,12 @@
 
     <item
         android:id="@+id/navigation_pencarian"
-        android:icon="@drawable/ic_dashboard_black_24dp"
-        android:title="Pencarian" />
+        android:icon="@drawable/ic_search"
+        android:title="Searching" />
 
     <item
         android:id="@+id/navigation_favorite"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="Favorit" />
+        android:icon="@drawable/ic_wishlist"
+        android:title="Wishlist" />
 
 </menu>
