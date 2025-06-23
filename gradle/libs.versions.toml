@@ -1,6 +1,10 @@
 [versions]
+activityKtx = "1.9.0"
 agp = "8.6.0"
+compiler = "4.16.0"
 firebaseBom = "33.15.0"
+fragmentKtx = "1.8.8"
+glideVersion = "4.16.0"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -18,10 +22,14 @@ googleGmsGoogleServices = "4.4.2"
 firebaseDatabase = "21.0.0"
 
 [libraries]
+androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
+compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "compiler" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-database-ktx = { module = "com.google.firebase:firebase-database-ktx" }
+github-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -39,4 +47,5 @@ firebase-database = { group = "com.google.firebase", name = "firebase-database",
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
+androidx-navigation-safe-args = { id = "androidx.navigation.safeargs.kotlin", version = "2.7.7" }
 

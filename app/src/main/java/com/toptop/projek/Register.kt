@@ -9,7 +9,10 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.toptop.projek.databinding.ActivityRegisterBinding // Pastikan nama file XML Anda adalah activity_register.xml
+import com.toptop.projek.databinding.ActivityRegisterBinding
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.TimeZone
 
 class Register : AppCompatActivity() {
 
@@ -21,70 +24,71 @@ class Register : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Atur listener untuk tombol register
-        binding.button.setOnClickListener {
-            // Ambil input dari semua field
-            val username = binding.usernameRegister.text.toString() // ID yang sudah diperbaiki
-            val email = binding.emailRegister.text.toString()
+        // Inisialisasi referensi database ke node 'users'
+        database = FirebaseDatabase.getInstance().getReference("users")
+
+        binding.register.setOnClickListener {
+            val displayName = binding.usernameRegister.text.toString().trim()
+            val email = binding.emailRegister.text.toString().trim()
             val password = binding.passwordRegister.text.toString()
 
-            // Validasi input tidak boleh kosong
-            if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            if (displayName.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Semua field harus diisi", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Buat objek User dari data class yang kita buat
-            val user = User(username, email, password)
-
             // Panggil fungsi untuk mendaftarkan user
-            registerUser(user)
+            registerUser(displayName, email, password)
         }
 
-        // Atur listener untuk teks "Login?"
         binding.textView5.setOnClickListener {
             val intent = Intent(this, Login::class.java)
             startActivity(intent)
         }
     }
 
-    private fun registerUser(user: User) {
-        // Arahkan referensi database ke node 'users'
-        database = FirebaseDatabase.getInstance().getReference("users")
+    private fun registerUser(displayName: String, email: String, password: String) {
+        // 1. Cek dulu apakah displayName sudah ada menggunakan query
+        database.orderByChild("displayName").equalTo(displayName)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        // Jika snapshot ada isinya, berarti displayName sudah digunakan
+                        Toast.makeText(this@Register, "Username (Display Name) sudah digunakan!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // 2. Jika displayName belum ada, buat user baru
+                        val userId = database.push().key // Buat ID unik baru untuk user
 
-        // 1. Cek dulu apakah username sudah ada
-        database.child(user.username!!).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    // Jika username sudah ada, tampilkan pesan error
-                    Toast.makeText(this@Register, "Username sudah digunakan!", Toast.LENGTH_SHORT).show()
-                } else {
-                    // 2. Jika username belum ada, simpan data user baru
-                    database.child(user.username).setValue(user)
-                        .addOnSuccessListener {
-                            // Jika berhasil disimpan
-                            Toast.makeText(this@Register, "Registrasi berhasil!", Toast.LENGTH_SHORT).show()
-
-                            // Kosongkan field input
-                            binding.usernameRegister.text.clear()
-                            binding.emailRegister.text.clear()
-                            binding.passwordRegister.text.clear()
-
-                            // Arahkan ke halaman Login
-                            val intent = Intent(this@Register, Login::class.java)
-                            startActivity(intent)
-                            finish() // Tutup activity register
+                        if (userId == null) {
+                            Toast.makeText(this@Register, "Gagal membuat user ID", Toast.LENGTH_SHORT).show()
+                            return
                         }
-                        .addOnFailureListener {
-                            // Jika gagal disimpan
-                            Toast.makeText(this@Register, "Registrasi gagal, coba lagi", Toast.LENGTH_SHORT).show()
-                        }
+
+                        // Buat timestamp dalam format ISO 8601
+                        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                        sdf.timeZone = TimeZone.getTimeZone("UTC")
+                        val createdAt = sdf.format(Date())
+
+                        // Buat objek User
+                        val user = User(userId, displayName, email, password, "", "", createdAt)
+
+                        // Simpan user baru di bawah ID yang unik
+                        database.child(userId).setValue(user)
+                            .addOnSuccessListener {
+                                Toast.makeText(this@Register, "Registrasi berhasil!", Toast.LENGTH_SHORT).show()
+                                val intent = Intent(this@Register, Login::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(this@Register, "Registrasi gagal, coba lagi", Toast.LENGTH_SHORT).show()
+                            }
+                    }
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@Register, "Gagal terhubung ke database", Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(this@Register, "Gagal terhubung ke database", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 }

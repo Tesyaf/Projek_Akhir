@@ -9,7 +9,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.toptop.projek.databinding.ActivityLoginBinding // Ganti nama jika file XML Anda bukan activity_login.xml
+import com.toptop.projek.databinding.ActivityLoginBinding
 
 class Login : AppCompatActivity() {
 
@@ -18,69 +18,69 @@ class Login : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Setup View Binding
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Atur OnClickListener untuk tombol login
-        binding.button.setOnClickListener {
-            // Ambil input dari EditText
-            val username = binding.usernameLogin.text.toString()
-            val password = binding.passwordLogin.text.toString() // Menggunakan ID yang sudah diperbaiki
+        // Inisialisasi referensi database ke node 'users'
+        database = FirebaseDatabase.getInstance().getReference("users")
 
-            // Validasi input tidak boleh kosong
-            if (username.isEmpty() || password.isEmpty()) {
+        binding.button.setOnClickListener {
+            val displayName = binding.usernameLogin.text.toString().trim()
+            val password = binding.passwordLogin.text.toString()
+
+            if (displayName.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Username dan Password harus diisi", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Panggil fungsi untuk proses login
-            loginUser(username, password)
+            loginUser(displayName, password)
         }
 
-        // Atur OnClickListener untuk teks "Daftar?"
         binding.directDaftar.setOnClickListener {
-            // Arahkan ke Activity Register (buat jika belum ada)
-            // val intent = Intent(this, RegisterActivity::class.java)
-            // startActivity(intent)
+            val intent = Intent(this, Register::class.java)
+            startActivity(intent)
         }
     }
 
-    private fun loginUser(username: String, passwordDariInput: String) {
-        // Arahkan referensi database ke node 'users'
-        database = FirebaseDatabase.getInstance().getReference("users")
+    private fun loginUser(displayName: String, passwordDariInput: String) {
+        // Cari data berdasarkan displayName menggunakan query
+        database.orderByChild("displayName").equalTo(displayName)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        var userFound = false
+                        for (userSnapshot in snapshot.children) {
+                            val user = userSnapshot.getValue(User::class.java)
 
-        // Cari data berdasarkan username yang diinput
-        database.child(username).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                // Cek apakah username ada di database
-                if (snapshot.exists()) {
-                    // Jika username ada, ambil password dari database
-                    val passwordDariDb = snapshot.child("password").getValue(String::class.java)
+                            // Bandingkan password
+                            if (user?.password == passwordDariInput) {
+                                userFound = true
+                                Toast.makeText(this@Login, "Login berhasil! Halo, ${user.displayName}", Toast.LENGTH_SHORT).show()
 
-                    // Bandingkan password dari input dengan password di database
-                    if (passwordDariDb == passwordDariInput) {
-                        // Jika password cocok
-                        Toast.makeText(this@Login, "Login berhasil!", Toast.LENGTH_SHORT).show()
+                                val intent = Intent(this@Login, MainActivity::class.java)
 
-                        // Arahkan ke MainActivity atau halaman utama
-                        val intent = Intent(this@Login, MainActivity::class.java)
-                        startActivity(intent)
-                        finish() // Tutup activity login agar tidak bisa kembali
+                                // --- INI BAGIAN YANG HILANG DAN SANGAT PENTING ---
+                                // Kirim ID unik milik user ke MainActivity agar MainActivity tahu siapa yang login.
+                                // Pastikan class User Anda memiliki properti 'id'.
+                                intent.putExtra("USER_ID", user.id)
+
+                                startActivity(intent)
+                                finish()
+                                break // Keluar dari loop jika user sudah ditemukan dan password cocok
+                            }
+                        }
+
+                        if (!userFound) {
+                            Toast.makeText(this@Login, "Password salah", Toast.LENGTH_SHORT).show()
+                        }
                     } else {
-                        // Jika password tidak cocok
-                        Toast.makeText(this@Login, "Password salah", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@Login, "Username tidak ditemukan", Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    // Jika username tidak ditemukan
-                    Toast.makeText(this@Login, "Username tidak ditemukan", Toast.LENGTH_SHORT).show()
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                // Jika terjadi error saat mengakses database
-                Toast.makeText(this@Login, "Gagal terhubung ke database", Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(this@Login, "Gagal terhubung ke database", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 }

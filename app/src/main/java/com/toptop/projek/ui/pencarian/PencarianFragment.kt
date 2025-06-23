@@ -1,60 +1,112 @@
 package com.toptop.projek.ui.pencarian
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.google.firebase.database.*
+import com.toptop.projek.Laptop
 import com.toptop.projek.R
+import com.toptop.projek.databinding.FragmentPencarianBinding
+import java.util.*
+import androidx.fragment.app.activityViewModels
+import com.toptop.projek.ui.SharedViewModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [PencarianFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class PencarianFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    private var _binding: FragmentPencarianBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var database: FirebaseDatabase
+    private lateinit var searchAdapter: SearchAdapter
+    private val fullLaptopList = mutableListOf<Laptop>()
+
+    private val sharedViewModel: SharedViewModel by activityViewModels()
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentPencarianBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        database = FirebaseDatabase.getInstance()
+        setupRecyclerView()
+        fetchLaptops()
+        setupSearchListener()
+    }
+
+    private fun setupRecyclerView() {
+        searchAdapter = SearchAdapter { laptop ->
+            // Ambil userId dari 'papan tulis'
+            val userId = sharedViewModel.userId.value
+
+            val bundle = bundleOf(
+                "LAPTOP_ID" to laptop.id,
+                "USER_ID" to userId
+            )
+            findNavController().navigate(R.id.action_navigation_pencarian_to_detailFragment, bundle)
         }
+        binding.rvSearchResults.adapter = searchAdapter
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_pencarian, container, false)
+    private fun fetchLaptops() {
+        val laptopsRef = database.getReference("laptops")
+        laptopsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                fullLaptopList.clear()
+                for (laptopSnapshot in snapshot.children) {
+                    val laptop = laptopSnapshot.getValue(Laptop::class.java)
+                    if (laptop != null) {
+                        fullLaptopList.add(laptop)
+                    }
+                }
+                // Tampilkan semua laptop pada awalnya
+                searchAdapter.submitList(fullLaptopList)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(context, "Gagal memuat data", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment PencarianFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            PencarianFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun setupSearchListener() {
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                filter(s.toString())
+            }
+        })
+    }
+
+    private fun filter(query: String) {
+        val filteredList = mutableListOf<Laptop>()
+        if (query.isEmpty()) {
+            filteredList.addAll(fullLaptopList)
+        } else {
+            for (laptop in fullLaptopList) {
+                if (laptop.modelName?.lowercase(Locale.ROOT)?.contains(query.lowercase(Locale.ROOT)) == true ||
+                    laptop.brand?.lowercase(Locale.ROOT)?.contains(query.lowercase(Locale.ROOT)) == true) {
+                    filteredList.add(laptop)
                 }
             }
+        }
+        searchAdapter.submitList(filteredList)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

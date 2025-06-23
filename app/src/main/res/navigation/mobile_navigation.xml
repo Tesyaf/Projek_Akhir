@@ -3,23 +3,94 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@id/navigation_home">
+
+    <action
+        android:id="@+id/action_global_to_profileFragment"
+        app:destination="@id/profileFragment" />
+    <action
+        android:id="@+id/action_global_to_loginActivity"
+        app:destination="@id/loginActivity"
+        app:popUpTo="@id/mobile_navigation"
+        app:popUpToInclusive="true" />
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.toptop.projek.ui.profile.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/comparisonFragment"
+        android:name="com.toptop.projek.ui.comparison.ComparisonFragment"
+        android:label="ComparisonFragment"
+        tools:layout="@layout/fragment_comparison" >
+        <argument
+            android:name="laptopId1"
+            app:argType="string" />
+        <argument
+            android:name="laptopId2"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.toptop.projek.ui.profile.EditProfileFragment"
+        android:label="EditProfileFragment"
+        tools:layout="@layout/fragment_edit_profile" />
+
+    <activity
+        android:id="@+id/loginActivity"
+        android:name="com.toptop.projek.Login"
+        android:label="activity_login"
+        tools:layout="@layout/activity_login" />
 
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.toptop.projek.ui.home.HomeFragment"
-        android:label="Beranda"
-        tools:layout="@layout/fragment_home" />
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_navigation_home_to_detailFragment"
+            app:destination="@id/detailFragment" />
+    </fragment>
 
     <fragment
-        android:id="@+id/navigation_favorite"
-        android:name="com.toptop.projek.ui.favorite.FavoriteFragment"
-        android:label="Favorit"
-        tools:layout="@layout/fragment_favorite" />
+        android:id="@+id/detailFragment"
+        android:name="com.toptop.projek.ui.detail.DetailFragment"
+        android:label="DetailFragment"
+        tools:layout="@layout/fragment_detail">
+        <argument
+            android:name="LAPTOP_ID"
+            app:argType="string" />
+        <argument
+            android:name="USER_ID"
+            app:argType="string"
+            app:nullable="true"/>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_pencarian"
         android:name="com.toptop.projek.ui.pencarian.PencarianFragment"
         android:label="Pencarian"
-        tools:layout="@layout/fragment_pencarian" />
+        tools:layout="@layout/fragment_pencarian">
+        <action
+            android:id="@+id/action_navigation_pencarian_to_detailFragment"
+            app:destination="@id/detailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_favorite"
+        android:name="com.toptop.projek.ui.favorite.FavoriteFragment"
+        android:label="Favorite"
+        tools:layout="@layout/fragment_favorite">
+        <action
+        android:id="@+id/action_navigation_favorite_to_detailFragment"
+        app:destination="@id/detailFragment" />
+    </fragment>
+
 </navigation>

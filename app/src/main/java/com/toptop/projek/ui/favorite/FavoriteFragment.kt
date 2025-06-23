@@ -1,60 +1,110 @@
 package com.toptop.projek.ui.favorite
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
+import com.google.firebase.database.*
+import com.toptop.projek.Laptop
 import com.toptop.projek.R
+import com.toptop.projek.databinding.FragmentFavoriteBinding
+import com.toptop.projek.ui.SharedViewModel
+import com.toptop.projek.ui.pencarian.SearchAdapter
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [FavoriteFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class FavoriteFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    private var _binding: FragmentFavoriteBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var database: FirebaseDatabase
+    private val sharedViewModel: SharedViewModel by activityViewModels()
+
+    // Kita bisa gunakan adapter yang sama dengan halaman pencarian
+    private lateinit var wishlistAdapter: SearchAdapter
+    private val laptopDetailsList = mutableListOf<Laptop>()
+    private var wishlistListener: ValueEventListener? = null
+    private var wishlistRef: DatabaseReference? = null
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentFavoriteBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        database = FirebaseDatabase.getInstance()
+
+        setupRecyclerView()
+
+        sharedViewModel.userId.observe(viewLifecycleOwner) { userId ->
+            if (userId != null) {
+                fetchWishlistLaptopIds(userId)
+            } else {
+                binding.tvEmptyWishlist.isVisible = true
+                binding.rvWishlist.isVisible = false
+            }
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_favorite, container, false)
+    private fun setupRecyclerView() {
+        wishlistAdapter = SearchAdapter { laptop ->
+            val userId = sharedViewModel.userId.value
+            val bundle = bundleOf("LAPTOP_ID" to laptop.id, "USER_ID" to userId)
+            findNavController().navigate(R.id.action_navigation_favorite_to_detailFragment, bundle)
+        }
+        binding.rvWishlist.adapter = wishlistAdapter
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment FavoriteFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            FavoriteFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun fetchWishlistLaptopIds(userId: String) {
+        wishlistRef = database.getReference("users").child(userId).child("wishlist")
+
+        wishlistListener = wishlistRef?.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                laptopDetailsList.clear() // Kosongkan list setiap ada perubahan
+                binding.tvEmptyWishlist.isVisible = !snapshot.exists()
+                binding.rvWishlist.isVisible = snapshot.exists()
+
+                if (snapshot.exists()) {
+                    for (laptopIdSnapshot in snapshot.children) {
+                        val laptopId = laptopIdSnapshot.key
+                        if (laptopId != null) {
+                            fetchLaptopDetails(laptopId)
+                        }
+                    }
+                } else {
+                    wishlistAdapter.submitList(emptyList())
                 }
             }
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(context, "Gagal memuat wishlist.", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun fetchLaptopDetails(laptopId: String) {
+        val laptopRef = database.getReference("laptops").child(laptopId)
+        laptopRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val laptop = snapshot.getValue(Laptop::class.java)
+                if (laptop != null) {
+                    laptopDetailsList.add(laptop)
+                    wishlistAdapter.submitList(laptopDetailsList.toList()) // Update adapter dengan list baru
+                }
+            }
+            override fun onCancelled(error: DatabaseError) { /* Do nothing */ }
+        })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Hentikan listener saat fragment dihancurkan untuk menghindari memory leak
+        wishlistListener?.let { wishlistRef?.removeEventListener(it) }
+        _binding = null
     }
 }

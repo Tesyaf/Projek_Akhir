@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    app:cardBackgroundColor="#D6E0FF"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/iv_comp_laptop"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:scaleType="centerInside"
+            tools:src="@drawable/ic_image_placeholder" />
+
+        <TextView
+            android:id="@+id/tv_comp_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:textColor="#1C2D66"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="Dell XPS 13" />
+
+        <TextView
+            android:id="@+id/tv_comp_tagline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:textColor="#3D56B2"
+            android:textSize="12sp"
+            tools:text="Ultra-portable power" />
+
+        <LinearLayout
+            android:id="@+id/ll_comp_specs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/tv_comp_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:textColor="#1C2D66"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:text="$1,199"/>
+
+        <Button
+            android:id="@+id/btn_comp_buy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Buy Now"
+            android:backgroundTint="#1C2D66"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btn_comp_wishlist"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Add to Wishlist"
+            android:textColor="#596898"
+            app:strokeColor="#596898"
+            android:textAllCaps="false" />
+
+        <TextView
+            android:id="@+id/tv_comp_strengths"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_spec_chip"
+            android:padding="12dp"
+            android:textColor="#3D56B2"
+            android:textSize="12sp"
+            tools:text="Strengths: Lightweight and ultra-portable, excellent battery life..." />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,60 +1,119 @@
 package com.toptop.projek.ui.home
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
+import com.google.firebase.database.*
+import com.toptop.projek.Laptop
 import com.toptop.projek.R
+import com.toptop.projek.User
+import com.toptop.projek.databinding.FragmentHomeBinding
+import androidx.navigation.fragment.findNavController
+import androidx.core.os.bundleOf
+import androidx.fragment.app.activityViewModels
+import com.toptop.projek.ui.SharedViewModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var database: FirebaseDatabase
+    private lateinit var laptopAdapter: LaptopAdapter
+
+    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+    ): View {
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Inisialisasi Firebase Database
+        database = FirebaseDatabase.getInstance()
+
+        // Setup RecyclerView
+        setupRecyclerView()
+        val currentUserId = sharedViewModel.userId.value
+
+        if (currentUserId != null) {
+            fetchUserData(currentUserId)
+        } else {
+            // Handle kasus di mana ID tidak terkirim
+            Toast.makeText(context, "Gagal mendapatkan data user.", Toast.LENGTH_SHORT).show()
+        }
+        binding.ivProfile.setOnClickListener {
+            findNavController().navigate(R.id.action_global_to_profileFragment)
+        }
+
+        fetchLaptopsData()
+    }
+
+    private fun setupRecyclerView() {
+        laptopAdapter = LaptopAdapter { laptop ->
+            val bundle = bundleOf(
+                "LAPTOP_ID" to laptop.id,
+                "USER_ID" to arguments?.getString("USER_ID")
+            )
+            findNavController().navigate(R.id.action_navigation_home_to_detailFragment, bundle)
+        }
+        binding.rvRecommendations.adapter = laptopAdapter
+    }
+
+    private fun fetchUserData(userId: String) {
+        val userRef = database.getReference("users").child(userId)
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val user = snapshot.getValue(User::class.java)
+                if (user != null) {
+                    binding.tvUserName.text = user.displayName
+                    Glide.with(this@HomeFragment)
+                        .load(user.photoURL)
+                        .placeholder(R.drawable.ic_profile) // Placeholder default
+                        .error(R.drawable.ic_profile)       // Gambar jika error
+                        .circleCrop() // Membuat gambar menjadi lingkaran
+                        .into(binding.ivProfile)
                 }
             }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(context, "Gagal memuat data user", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun fetchLaptopsData() {
+        val laptopsRef = database.getReference("laptops")
+        laptopsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val laptopList = mutableListOf<Laptop>()
+                for (laptopSnapshot in snapshot.children) {
+                    val laptop = laptopSnapshot.getValue(Laptop::class.java)
+                    if (laptop != null) {
+                        laptopList.add(laptop)
+                    }
+                }
+                // Kirim daftar laptop ke adapter
+                laptopAdapter.submitList(laptopList)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(context, "Gagal memuat data laptop", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

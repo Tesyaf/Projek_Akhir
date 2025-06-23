@@ -86,7 +86,7 @@
         android:fontFamily="@font/nunitosemibold"
         android:hint=""
         android:inputType="text"
-        android:padding="3dp"
+        android:padding="6dp"
         android:textColorHint="@color/accent"
         android:textSize="14dp"
         app:layout_constraintEnd_toEndOf="@+id/view"
@@ -103,7 +103,7 @@
         android:ems="12"
         android:fontFamily="@font/nunitosemibold"
         android:inputType="textPassword"
-        android:padding="3dp"
+        android:padding="6dp"
         android:textColorHint="@color/accent"
         android:textSize="14dp"
         app:layout_constraintEnd_toEndOf="@+id/view"
@@ -114,30 +114,30 @@
     <Button
         android:id="@+id/button"
         android:layout_width="228dp"
-        android:layout_height="36dp"
+        android:layout_height="45dp"
+        android:fontFamily="@font/nunitosemibold"
         android:text="Login"
         android:textSize="14dp"
-        android:fontFamily="@font/nunitosemibold"
         app:layout_constraintBottom_toBottomOf="@+id/view"
-        app:layout_constraintEnd_toEndOf="@+id/password_register"
+        app:layout_constraintEnd_toEndOf="@+id/password_login"
         app:layout_constraintHorizontal_bias="0.515"
-        app:layout_constraintStart_toStartOf="@+id/password_register"
-        app:layout_constraintTop_toBottomOf="@+id/password_register"
+        app:layout_constraintStart_toStartOf="@+id/password_login"
+        app:layout_constraintTop_toBottomOf="@+id/password_login"
         app:layout_constraintVertical_bias="0.232" />
 
     <TextView
         android:id="@+id/direct_daftar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/nunito"
         android:text="Daftar?"
         android:textColor="@color/accent"
         android:textSize="12dp"
-        android:fontFamily="@font/nunito"
         app:layout_constraintBottom_toBottomOf="@+id/view"
         app:layout_constraintEnd_toEndOf="@+id/button"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/button"
         app:layout_constraintTop_toBottomOf="@+id/button"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.212" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
