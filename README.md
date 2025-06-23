@@ -88,6 +88,13 @@ TopTop mengusung desain modern, bersih, dan ramah pengguna.
 
 ---
 
+## 🔗 Tautan Terkait
+
+- 📂 GitHub Repository: [TopTop GitHub](https://github.com/Tesyaf/TopTop.git)
+- 🎨 Figma Desain: [TopTop Figma](https://www.figma.com/design/jZM2vyGnga8KvIGSUHeu6X/TopTop?node-id=0-1&t=ho4GLYKEOIqNJixc-1)
+
+---
+
 ## 🧱 Arsitektur Aplikasi
 
 Aplikasi ini menggunakan pendekatan arsitektur modular dengan struktur sebagai berikut:
@@ -104,3 +111,22 @@ TopTop/
 └── MainActivity.java # Entry point aplikasi
 ```
 
+---
+
+## 👥 Tim Pengembang
+
+Kelompok 7 – Teknologi dan Aplikasi Mobile  
+Fakultas MIPA, Universitas Lampung – 2025
+
+- Amala Ratri Nugraheni (2317051007)  
+- Adila Nurul Hidayah (2317051034)  
+- Sofia’ Azahra (2317051075)  
+- Muhammad Alif Abrar (2317051090)  
+- Aderiana Yustitia (2317051110)  
+- Muhammad Fa’jri Ramadhani (2357051004)
+
+---
+
+## 📌 Lisensi
+
+Proyek ini dibuat untuk keperluan akademik dan tidak ditujukan untuk penggunaan komersial.
